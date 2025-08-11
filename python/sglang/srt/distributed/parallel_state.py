@@ -86,7 +86,6 @@ def get_torch_distributed_pg_options(group_name=None):
     )
     options.hccl_config = {"hccl_buffer_size": hccl_buffer_size}
     return options
-
 @dataclass
 class GraphCaptureContext:
     stream: torch.get_device_module().Stream
@@ -2227,7 +2226,6 @@ def destroy_model_parallel():
         _TP.destroy()
     _TP = None
 
-    
     global _PP
     if _PP:
         _PP.destroy()
