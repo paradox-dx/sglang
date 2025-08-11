@@ -696,7 +696,6 @@ class Engine(EngineBase):
 
     def shutdown(self):
         """Shutdown the engine"""
-        print("DEBUGG kill_process_tree {}".format(os.getpid()))
         kill_process_tree(os.getpid(), include_parent=False)
 
     def __enter__(self):
