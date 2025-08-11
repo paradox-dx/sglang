@@ -37,7 +37,7 @@ from sglang.srt.layers.parameter import (
     _ColumnvLLMParameter,
 )
 from sglang.srt.layers.utils import pad_or_narrow_weight
-from sglang.srt.utils import get_bool_env_var, is_cpu, is_hip, is_npu, set_weight_attrs
+from sglang.srt.utils import get_bool_env_var, is_cpu, is_hip, is_npu, set_weight_attrs,get_int_env_var
 
 if TYPE_CHECKING:
     from sglang.srt.layers.quantization.base_config import (
@@ -1395,7 +1395,7 @@ class RowParallelLinear(LinearBase):
             )
         else:
             self.register_parameter("bias", None)
-        
+
         self.gemm_ar_attn_op = None
         self.gemm_ar_mlp_op = None
 
@@ -1493,7 +1493,7 @@ class RowParallelLinear(LinearBase):
                 param.load_row_parallel_weight(loaded_weight)
 
     def forward(self, input_, skip_all_reduce=False):
-        if get_int_env_var('SGL_USE_TP_OVERLAP', 0) == 1:
+        if get_int_env_var("SGL_USE_TP_OVERLAP", 0) == 1:
             if self.gemm_ar_attn_op:
                 output = self.gemm_ar_attn_op.forward(input_, self.weight, self.bias)
             else:
