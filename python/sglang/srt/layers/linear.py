@@ -1395,6 +1395,9 @@ class RowParallelLinear(LinearBase):
             )
         else:
             self.register_parameter("bias", None)
+        
+        self.gemm_ar_attn_op = None
+        self.gemm_ar_mlp_op = None
 
     def weight_loader(self, param: Parameter, loaded_weight: torch.Tensor):
         input_dim = getattr(param, "input_dim", None)
@@ -1490,6 +1493,15 @@ class RowParallelLinear(LinearBase):
                 param.load_row_parallel_weight(loaded_weight)
 
     def forward(self, input_, skip_all_reduce=False):
+        if get_int_env_var('SGL_USE_TP_OVERLAP', 0) == 1:
+            if self.gemm_ar_attn_op:
+                output = self.gemm_ar_attn_op.forward(input_, self.weight, self.bias)
+            else:
+                output = self.gemm_ar_mlp_op.forward(input_, self.weight, self.bias)
+
+            output_bias = self.bias if self.skip_bias_add else None
+            return output, output_bias
+
         if self.input_is_parallel:
             input_parallel = input_
         else:
