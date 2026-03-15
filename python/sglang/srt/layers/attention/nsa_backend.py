@@ -410,6 +410,10 @@ class NativeSparseAttnBackend(
             max_seqlen_q = 1
             cu_seqlens_q = self.get_device_int32_arange(batch_size + 1)
             seqlens_expanded = cache_seqlens_int32
+            if topk_transform_method == TopkTransformMethod.RAGGED:
+                # For decode, each batch has 1 query token, so topk_indices_offset
+                # is simply cu_seqlens_k[:-1] (no repeat_interleave needed).
+                topk_indices_offset = cu_seqlens_k[:-1]
         elif forward_batch.forward_mode.is_target_verify():
             max_seqlen_q = 1
             cu_seqlens_q = torch.arange(
